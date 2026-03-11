@@ -1,0 +1,408 @@
+# Default values for stalwart.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# -- Container image configuration
+image:
+  # -- Stalwart mail server image repository
+  repository: stalwartlabs/stalwart
+  # -- Image pull policy
+  pullPolicy: IfNotPresent
+  # -- Overrides the image tag (default is the chart appVersion)
+  tag: "v0.15.5"
+
+# -- Image pull secrets for private registries
+imagePullSecrets: []
+
+# -- Override the chart name
+nameOverride: ""
+
+# -- Override the full release name
+fullnameOverride: ""
+
+# -- Service account configuration
+serviceAccount:
+  # -- Specifies whether a service account should be created
+  create: true
+  # -- Automatically mount a ServiceAccount's API credentials
+  automount: true
+  # -- Annotations to add to the service account
+  annotations: {}
+  # -- The name of the service account to use (generated from fullname template if empty)
+  name: ""
+
+# -- Annotations to add to the Deployment/StatefulSet metadata
+annotations: {}
+
+# -- Annotations to add to pods
+podAnnotations: {}
+
+# -- Labels to add to pods
+podLabels: {}
+
+# -- Pod security context
+podSecurityContext:
+  # -- Run as non-root user
+  runAsNonRoot: true
+  # -- User ID to run the container
+  runAsUser: 8080
+  # -- Group ID for filesystem access
+  fsGroup: 8080
+  # -- Ensure fsGroup ownership is applied
+  fsGroupChangePolicy: "OnRootMismatch"
+
+# -- Container security context
+securityContext:
+  # -- Drop all capabilities
+  capabilities:
+    drop:
+    - ALL
+  # -- Run as non-root user
+  runAsNonRoot: true
+  # -- Do not allow privilege escalation
+  allowPrivilegeEscalation: false
+  # -- Read-only root filesystem (disabled due to Stalwart requirements)
+  readOnlyRootFilesystem: false
+
+# -- Service configuration
+service:
+  # -- Service type (ClusterIP, NodePort, or LoadBalancer)
+  type: LoadBalancer
+  # -- External traffic policy (Local or Cluster)
+  externalTrafficPolicy: Local
+  # -- IP family policy for dual-stack support
+  ipFamilyPolicy: SingleStack
+  # -- Service ports configuration for mail protocols
+  ports:
+  - name: http
+    port: 80
+    targetPort: 8080
+    protocol: TCP
+  - name: https
+    port: 443
+    targetPort: 443
+    protocol: TCP
+  - name: smtp
+    port: 25
+    targetPort: 25
+    protocol: TCP
+  - name: submission
+    port: 587
+    targetPort: 587
+    protocol: TCP
+  - name: smtps
+    port: 465
+    targetPort: 465
+    protocol: TCP
+  - name: imap
+    port: 143
+    targetPort: 143
+    protocol: TCP
+  - name: imaps
+    port: 993
+    targetPort: 993
+    protocol: TCP
+  - name: sieve
+    port: 4190
+    targetPort: 4190
+    protocol: TCP
+
+# -- Ingress configuration
+ingress:
+  # -- Enable ingress
+  enabled: false
+  # -- Ingress class name
+  className: ""
+  # -- Ingress annotations
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  # -- Ingress hosts configuration
+  hosts:
+    - host: chart-example.local
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  # -- Ingress TLS configuration
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
+
+# -- Resource limits and requests
+resources:
+  # -- Resource limits
+  limits:
+    # -- CPU limit
+    cpu: 2000m
+    # -- Memory limit
+    memory: 4Gi
+  # -- Resource requests
+  requests:
+    # -- CPU request
+    cpu: 500m
+    # -- Memory request
+    memory: 1Gi
+
+# -- Liveness probe configuration
+livenessProbe:
+  httpGet:
+    path: /
+    port: http
+
+# -- Readiness probe configuration
+readinessProbe:
+  httpGet:
+    path: /
+    port: http
+
+# -- Horizontal Pod Autoscaler configuration
+autoscaling:
+  # -- Enable autoscaling
+  enabled: false
+  # -- Minimum number of replicas
+  minReplicas: 1
+  # -- Maximum number of replicas
+  maxReplicas: 100
+  # -- Target CPU utilization percentage
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+# -- Node selector for pod assignment
+nodeSelector: {}
+
+# -- Tolerations for pod assignment
+tolerations: []
+
+# -- Affinity rules for pod assignment
+affinity: {}
+
+# -- PostgreSQL storage backend configuration
+postgresql:
+  # -- PostgreSQL hostname or service name
+  host: "postgresql.default.svc.cluster.local"
+  # -- PostgreSQL port
+  port: 5432
+  # -- PostgreSQL database name used by Stalwart
+  database: "stalwart"
+  # -- Secret containing the PostgreSQL username and password
+  secretName: "stalwart-db-user"
+  # -- Secret key for the PostgreSQL username
+  usernameKey: "username"
+  # -- Secret key for the PostgreSQL password
+  passwordKey: "password"
+  # -- Connection timeout
+  timeout: "15s"
+
+# -- Valkey / Redis lookup store configuration
+valkey:
+  # -- Valkey hostname or service name
+  host: "valkey.default.svc.cluster.local"
+  # -- Valkey port
+  port: 6379
+  # -- Logical database number
+  database: 0
+  # -- Use TLS when connecting to Valkey
+  tls: false
+  # -- Disable TLS verification when using `rediss://`
+  insecure: false
+  # -- Secret containing Valkey credentials
+  secretName: "valkey-stalwart-valkey"
+  # -- Optional username key in the Valkey secret. Leave empty for password-only auth.
+  usernameKey: ""
+  # -- Secret key for the Valkey password
+  passwordKey: "password"
+  # -- Connection timeout
+  timeout: "10s"
+
+# -- S3 blob storage configuration
+s3:
+  # -- AWS/S3 region
+  region: "us-east-1"
+  # -- Secret containing S3 credentials
+  secretName: "stalwart-secret"
+  # -- Secret key for the S3 bucket name
+  bucketKey: "bucket"
+  # -- Secret key for the S3 endpoint
+  endpointKey: "endpoint"
+  # -- Secret key for the S3 access key
+  accessKeyKey: "access-key"
+  # -- Secret key for the S3 secret key
+  secretKeyKey: "secret-key"
+  # -- Optional object key prefix inside the bucket
+  keyPrefix: "stalwart/"
+  # -- Blob store timeout
+  timeout: "30s"
+  # -- Number of retries for failed S3 requests
+  maxRetries: 3
+
+# -- TLS certificate configuration
+tls:
+  # -- DNS names for the certificate
+  dnsNames: []
+  # -- ACME DNS server URL (for DNS-01 challenges)
+  acmeDnsServer: https://acme-dns.example.com
+  # -- ACME server URL (production or staging)
+  acmeServer: "https://acme-v02.api.letsencrypt.org/directory"
+  # -- Secret reference for ACME account credentials
+  accountSecretRef: {}
+
+# -- Stalwart-specific configuration
+stalwart:
+  # -- Default hostname for the mail server
+  defaultHostname: mail.example.com
+
+  # -- Admin account secret configuration
+  admin:
+    # -- Existing secret containing the Stalwart admin username and password
+    secretName: "stalwart-admin"
+    # -- Secret key for the admin username
+    usernameKey: "username"
+    # -- Secret key for the admin password
+    passwordKey: "password"
+
+  # -- DKIM configuration
+  dkim:
+    # -- Enable DKIM configuration and mount signing keys
+    enabled: false
+    # -- DKIM verification policy for inbound mail: relaxed, strict, or disable
+    verify: "relaxed"
+    # -- Reject or ignore insecure DKIM signatures
+    strict: true
+    # -- Expression or static list of signatures used to sign outbound mail
+    sign:
+      - "default"
+    # -- Existing secret containing DKIM private keys
+    secretName: "stalwart-dkim"
+    # -- DKIM signatures to define
+    signatures:
+      - name: "default"
+        domain: "example.com"
+        selector: "mail"
+        privateKeyFile: "default.key"
+        algorithm: "ed25519-sha256"
+        canonicalization: "relaxed/relaxed"
+        expire: "7d"
+        headers:
+          - "From"
+          - "To"
+          - "Cc"
+          - "Date"
+          - "Subject"
+          - "Message-ID"
+          - "Organization"
+          - "MIME-Version"
+          - "Content-Type"
+          - "In-Reply-To"
+          - "References"
+          - "List-Id"
+          - "User-Agent"
+          - "Thread-Topic"
+          - "Thread-Index"
+        setBodyLength: false
+        report: false
+
+  # -- Metrics configuration
+  metrics:
+    # -- OpenTelemetry metrics exporter configuration
+    otel:
+      # -- Enable OpenTelemetry metrics export
+      enabled: false
+      # -- Transport protocol (grpc or http)
+      transport: "grpc"
+      # -- OpenTelemetry Collector metrics endpoint URL (for grpc: host:port, for http: full URL with path)
+      endpoint: "https://otel-collector.example.com"
+      # -- Metrics push interval (e.g., "30s", "1m")
+      interval: "30s"
+
+  # -- Tracer log configuration
+  tracer:
+    # -- Console tracer configuration
+    # Console logs are visible via kubectl logs
+    console:
+      # -- Enable console logging
+      enabled: true
+      # -- Console log level (trace, debug, info, warn, error)
+      level: "info"
+      # -- Enable ANSI color codes in console logs
+      ansi: true
+
+    # -- Enable file-based tracer logs
+    # File tracer provides log access via WebUI
+    enabled: false
+    # -- Log file directory path
+    path: "/var/log/stalwart"
+    # -- Log file prefix
+    prefix: "stalwart.log"
+    # -- Log rotation policy (daily, hourly, etc.)
+    rotate: "daily"
+    # -- Log level for file tracer (trace, debug, info, warn, error)
+    level: "info"
+    # -- Enable ANSI color codes in file logs
+    ansi: false
+
+    # -- OpenTelemetry tracer configuration
+    # Sends traces and logs to OpenTelemetry Collector via separate endpoints
+    otel:
+      # -- Transport protocol (grpc or http)
+      transport: "http"
+      # -- OpenTelemetry Collector logs endpoint URL (HTTP: include /v1/logs path, gRPC: host:port only)
+      logsEndpoint: "https://otel-collector.example.com:4318/v1/logs"
+      # -- OpenTelemetry Collector traces endpoint URL (HTTP: include /v1/traces path, gRPC: host:port only)
+      tracesEndpoint: "https://otel-collector.example.com:4318/v1/traces"
+      # -- Log level for OpenTelemetry tracer (trace, debug, info, warn, error)
+      level: "info"
+      # -- Enable log exporter (sends logs to OTel Collector)
+      enableLogExporter: true
+      # -- Enable span exporter (sends traces to OTel Collector)
+      enableSpanExporter: true
+      # -- Throttle duration between batches (e.g., "1s", "500ms")
+      throttle: "1s"
+
+# -- Clustering configuration for high availability
+# StatefulSet-based deployment with NATS coordination
+clustering:
+  # -- Enable clustered deployment mode
+  enabled: true
+
+  # -- Number of Stalwart replicas in the cluster
+  replicas: 3
+
+  # -- NATS coordination backend configuration
+  nats:
+    # -- List of NATS server addresses for cluster coordination
+    addresses:
+      - "nats://nats-server.default.svc.cluster.local:4222"
+
+    # -- Enable NATS authentication
+    authEnabled: false
+    # -- Kubernetes secret containing NATS credentials (username and password keys)
+    credentialsSecret: "stalwart-nats-credentials"
+
+    # -- TLS configuration for NATS connection
+    tls:
+      # -- Enable TLS for NATS connection
+      enabled: false
+
+    # -- Disable message echo back to sender
+    noEcho: true
+    # -- Ping interval for connection health checks
+    pingInterval: "60s"
+    # -- Maximum reconnection attempts (0 = unlimited)
+    maxReconnects: 0
+
+    # -- Connection timeout settings
+    timeouts:
+      # -- Connection establishment timeout
+      connection: "5s"
+      # -- Request timeout
+      request: "10s"
+
+    # -- NATS client capacity settings
+    capacity:
+      # -- Client buffer capacity
+      client: 2048
+      # -- Subscription buffer capacity
+      subscription: 65536
+      # -- Read buffer size
+      readBuffer: 65535

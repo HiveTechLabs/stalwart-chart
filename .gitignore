@@ -1,0 +1,27 @@
+.DS_Store
+Thumbs.db
+
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Helm artifacts
+charts/
+*.tgz
+*.tar.gz
+
+# Rendered manifests and local output
+rendered/
+dist/
+tmp/
+*.out
+
+# Local values and secrets
+values.local.yaml
+values.override.yaml
+secrets.yaml
+*.pem
+*.key
+*.crt
