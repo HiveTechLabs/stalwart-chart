@@ -68,6 +68,8 @@ securityContext:
 service:
   # -- Service type (ClusterIP, NodePort, or LoadBalancer)
   type: LoadBalancer
+  # -- Annotations to add to the Service
+  annotations: {}
   # -- External traffic policy (Local or Cluster)
   externalTrafficPolicy: Local
   # -- IP family policy for dual-stack support
@@ -106,28 +108,6 @@ service:
     port: 4190
     targetPort: 4190
     protocol: TCP
-
-# -- Ingress configuration
-ingress:
-  # -- Enable ingress
-  enabled: false
-  # -- Ingress class name
-  className: ""
-  # -- Ingress annotations
-  annotations: {}
-    # kubernetes.io/ingress.class: nginx
-    # kubernetes.io/tls-acme: "true"
-  # -- Ingress hosts configuration
-  hosts:
-    - host: chart-example.local
-      paths:
-        - path: /
-          pathType: ImplementationSpecific
-  # -- Ingress TLS configuration
-  tls: []
-  #  - secretName: chart-example-tls
-  #    hosts:
-  #      - chart-example.local
 
 # -- Resource limits and requests
 resources:
