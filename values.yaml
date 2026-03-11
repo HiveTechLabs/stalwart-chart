@@ -218,14 +218,15 @@ s3:
 
 # -- TLS certificate configuration
 tls:
+  # -- Common Name for the TLS certificate
+  commonName: ""
   # -- DNS names for the certificate
   dnsNames: []
-  # -- ACME DNS server URL (for DNS-01 challenges)
-  acmeDnsServer: https://acme-dns.example.com
-  # -- ACME server URL (production or staging)
-  acmeServer: "https://acme-v02.api.letsencrypt.org/directory"
-  # -- Secret reference for ACME account credentials
-  accountSecretRef: {}
+  # -- Existing cert-manager issuer reference used by the Certificate
+  issuerRef:
+    name: "letsencrypt-prod"
+    kind: "ClusterIssuer"
+    group: "cert-manager.io"
 
 # -- Stalwart-specific configuration
 stalwart:

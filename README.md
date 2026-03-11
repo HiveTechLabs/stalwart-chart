@@ -15,7 +15,7 @@ This chart currently deploys Stalwart as a clustered `StatefulSet` and expects e
 - Headless service for stable pod identity
 - Main service for external access
 - ConfigMap with the generated `config.toml`
-- Optional cert-manager `Issuer` and `Certificate`
+- Optional cert-manager `Certificate`
 
 ## Prerequisites
 
@@ -141,14 +141,11 @@ stalwart:
 
 ## TLS Resources
 
-The chart includes:
+The chart includes [`templates/certificate.yaml`](./templates/certificate.yaml) to request a certificate for the Stalwart TLS secret mounted into the pod.
 
-- [`templates/issuer.yaml`](./templates/issuer.yaml)
-- [`templates/certificate.yaml`](./templates/certificate.yaml)
+That certificate references an existing cert-manager issuer through `tls.issuerRef`.
 
-These create a cert-manager `Issuer` and `Certificate` for the Stalwart TLS secret mounted into the pod.
-
-If you terminate TLS entirely outside Stalwart, you may not need these resources. Be careful with mail protocols such as SMTPS, IMAPS, and HTTPS before removing them.
+If you terminate TLS entirely outside Stalwart, you may not need this resource. Be careful with mail protocols such as SMTPS, IMAPS, and HTTPS before removing it.
 
 ## Operations
 

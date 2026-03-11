@@ -8,6 +8,10 @@ metadata:
 spec:
   secretName: {{ include "stalwart.fullname" . }}-tls
 
+  {{- if .Values.tls.commonName }}
+  commonName: {{ .Values.tls.commonName }}
+  {{- end }}
+
   privateKey:
     algorithm: RSA
     encoding: PKCS1
@@ -17,4 +21,6 @@ spec:
     {{ toYaml .Values.tls.dnsNames | nindent 4 }}
 
   issuerRef:
-    name: {{ include "stalwart.fullname" . }}
+    name: {{ .Values.tls.issuerRef.name | quote }}
+    kind: {{ .Values.tls.issuerRef.kind | quote }}
+    group: {{ .Values.tls.issuerRef.group | quote }}
